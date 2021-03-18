@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1038370505745",
+    "project_id": "tryve-b7c6c",
+    "storage_bucket": "tryve-b7c6c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038370505745:android:bb006e0c90a04054705db0",
+        "android_client_info": {
+          "package_name": "com.tryve.thomas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1038370505745-el07ujgvjhnqqfpa4tlob1t9olqos52g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tryve.thomas",
+            "certificate_hash": "01ffb0790a0191b66bc3d25938bda570a8f212cf"
+          }
+        },
+        {
+          "client_id": "1038370505745-puuhb5fdn2t9oe6qmf6v4139ooju29t4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiLSFAXCgROBCKz9wdMnzGpr-aLnAW6hY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038370505745-puuhb5fdn2t9oe6qmf6v4139ooju29t4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
