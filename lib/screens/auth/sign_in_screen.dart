@@ -171,7 +171,7 @@ class _SigninScreenState extends State<SigninScreen> {
   }
 
   Widget _signUpText() {
-    return FlatButton(
+    return TextButton(
       onPressed: _toSignUp,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

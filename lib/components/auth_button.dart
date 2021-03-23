@@ -24,13 +24,18 @@ class AuthButton extends StatelessWidget {
           color: Colors.white, fontSize: 16, fontWeight: FontWeight.w300),
     );
 
-    return ButtonTheme(
-      minWidth: MediaQuery.of(context).size.width / widthDivider,
-      height: 44,
-      child: Container(
-        margin: EdgeInsets.only(bottom: 12),
-        child: RaisedButton(
-          color: color,
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      child: ConstrainedBox(
+        constraints: BoxConstraints.tightFor(
+            width: MediaQuery.of(context).size.width, height: 44),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              primary: color,
+              onPrimary: color,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50.0),
+                  side: BorderSide(color: color))),
           onPressed: onPressed,
           child: icon != null
               ? Row(
@@ -46,9 +51,6 @@ class AuthButton extends StatelessWidget {
                   ],
                 )
               : text,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50.0),
-              side: BorderSide(color: color)),
         ),
       ),
     );

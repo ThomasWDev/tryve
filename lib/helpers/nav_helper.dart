@@ -20,6 +20,16 @@ void pushPage(
   Navigator.of(context).pushNamed(newPage);
 }
 
+void pushPageWidget(
+    {@required Widget newPage,
+    @required BuildContext context,
+    bool pushBackPrevPage = false}) {
+  if (pushBackPrevPage) {
+    Navigator.of(context).pop();
+  }
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => newPage));
+}
+
 void pushPageWhileRemove(
     {@required String newPage,
     @required BuildContext context,

@@ -66,16 +66,14 @@ class _RootScreenState extends State<RootScreen>
         currentIndex: index,
         items: [
           BottomNavigationBarItem(
-              icon: Icon(PhosphorIcons.house), title: Text("Home")),
+              icon: Icon(PhosphorIcons.house), label: "Home"),
           BottomNavigationBarItem(
-              icon: Icon(PhosphorIcons.magnifying_glass),
-              title: Text("Search")),
+              icon: Icon(PhosphorIcons.magnifying_glass), label: "Search"),
           BottomNavigationBarItem(
-              icon: Icon(PhosphorIcons.camera), title: Text("Verify")),
+              icon: Icon(PhosphorIcons.camera), label: "Verify"),
+          BottomNavigationBarItem(icon: Icon(PhosphorIcons.rss), label: "Feed"),
           BottomNavigationBarItem(
-              icon: Icon(PhosphorIcons.rss), title: Text("Feed")),
-          BottomNavigationBarItem(
-              icon: Icon(PhosphorIcons.user_circle), title: Text("Profile"))
+              icon: Icon(PhosphorIcons.user_circle), label: "Profile")
         ],
         showUnselectedLabels: true,
         selectedItemColor: Palette.primary,

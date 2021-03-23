@@ -3,7 +3,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:tryve/components/animated_fab.dart';
+import 'package:tryve/components/gradient_text.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
+
 import 'package:tryve/theme/palette.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -45,6 +48,13 @@ class _FeedScreenState extends State<FeedScreen>
   }
 
   @override
+  void dispose() {
+    _animationController?.dispose();
+    _scrollController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -66,25 +76,14 @@ class _FeedScreenState extends State<FeedScreen>
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              ShaderMask(
-                                shaderCallback: (bounds) => LinearGradient(
-                                        colors: [
-                                      Palette.primaryDark,
-                                      Palette.mango,
-                                    ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight)
-                                    .createShader(Rect.fromLTWH(
-                                        0, 0, bounds.width, bounds.height)),
-                                child: Text(
-                                  "My feed",
+                              GradientText(
+                                  colors: [Palette.primaryDark, Palette.mango],
+                                  text: "My feed",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 32,
                                       letterSpacing: -1,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
+                                      fontWeight: FontWeight.bold)),
                               Text(
                                 "All of your personalised posts in all place",
                                 style: TextStyle(
@@ -163,33 +162,6 @@ class _FeedScreenState extends State<FeedScreen>
       floatingActionButton: AnimatedFAB(
         controller: _animationController,
       ),
-    );
-  }
-}
-
-class AnimatedFAB extends StatelessWidget {
-  final AnimationController controller;
-  const AnimatedFAB({Key key, this.controller}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      child: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.white,
-        child: IconWithCounter(
-          icon: PhosphorIcons.chat,
-          iconColor: Palette.primary,
-          numOfitem: 6,
-        ),
-      ),
-      builder: (BuildContext context, Widget child) {
-        return Transform.scale(
-          scale: controller.value,
-          child: child,
-        );
-      },
     );
   }
 }

@@ -32,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: Icon(
                 menu.icon,
                 size: 32,
+                color: index == 5 ? Colors.red : Colors.grey,
               ),
               title: Text(
                 menu.title,

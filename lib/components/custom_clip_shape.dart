@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
+import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/screens/message/message_screen.dart';
+import 'package:tryve/services/api/mock.dart';
 import 'package:tryve/theme/palette.dart';
 
 class CustomClipShape extends StatelessWidget {
@@ -79,8 +82,12 @@ class CustomClipShape extends StatelessWidget {
                               Spacer(),
                               IconBtnWithCounter(
                                 icon: PhosphorIcons.chat,
-                                press: () {},
-                                numOfitem: 6,
+                                press: () {
+                                  pushPage(
+                                      newPage: MessageScreen.routeName,
+                                      context: context);
+                                },
+                                numOfitem: kNumOfItem,
                               )
                             ],
                           ),
@@ -130,4 +137,27 @@ class ClipPathClass extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+class CustomClipShapeRaw extends StatelessWidget {
+  final double height;
+  const CustomClipShapeRaw({Key key, @required this.height}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: ClipPathClass(),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: height,
+        child: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+            Palette.primaryDark,
+            Palette.mango,
+          ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+        ),
+      ),
+    );
+  }
 }
