@@ -66,7 +66,7 @@ class CompleteVerificationScreen extends StatelessWidget {
         horizontal: 38,
       ),
       child: AuthButton(
-          onPressed: () => pushPage(
+          onPressed: () => replacePage(
               newPage: AuthenticationMethodScreen.routeName, context: context),
           label: "Complete",
           color: Palette.primary),

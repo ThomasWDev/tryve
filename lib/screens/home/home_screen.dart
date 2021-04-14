@@ -1,11 +1,21 @@
 import 'package:bezier_chart/bezier_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:tryve/components/common_loader.dart';
 import 'package:tryve/components/custom_clip_shape.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
 import 'package:tryve/components/system_theme_wrapper.dart';
+import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/helpers/string_helpers.dart';
+import 'package:tryve/screens/home/create_goals/create_goal_screen.dart';
+import 'package:tryve/screens/upcoming_challenges/upcoming_challenges_screen.dart';
 import 'package:tryve/services/api/mock.dart';
+import 'package:tryve/services/api/parse/goal_api/goal_api.dart';
+import 'package:tryve/services/auth/auth_service.dart';
+import 'package:provider/provider.dart';
 import 'package:tryve/theme/palette.dart';
 import 'package:tryve/theme/theme.dart';
 
@@ -17,7 +27,19 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
+  User _user;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _user = context.read<AuthenticationService>().getUser();
+  }
+
   GlobalKey _key = GlobalKey();
 
   List<Color> _pieColor(int order) {
@@ -150,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _goalsHeader() {
+  Widget _goalsHeader(int count) {
     return ListTile(
       title: Text(
         "Your Goal List :",
@@ -162,26 +184,48 @@ class _HomeScreenState extends State<HomeScreen> {
       trailing: IconBtnWithCounter(
         icon: PhosphorIcons.list,
         press: () {},
-        numOfitem: GoalsMock.count,
+        numOfitem: count,
         iconColor: Colors.grey,
       ),
     );
   }
 
   Widget _goalsList() {
-    return Column(
-      children: GoalsMock.goals.map((goal) => _GoalCard(goal: goal)).toList(),
-    );
-  }
-
-  Widget _goals() {
-    return Column(
-      children: <Widget>[_goalsHeader(), _goalsList()],
+    return FutureBuilder(
+      future: GoalAPI.getGoals(_user),
+      builder: (context, AsyncSnapshot<ParseResponse> snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data.success) {
+            if (snapshot.data.result != null) {
+              return Column(
+                children: [
+                  _goalsHeader((snapshot.data.results).length),
+                  Column(
+                    children: (snapshot.data.result as List<dynamic>)
+                        .map((goal) => _GoalCard(goal: goal))
+                        .toList(),
+                  ),
+                ],
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          } else {
+            return const SizedBox.shrink();
+          }
+        } else {
+          return SizedBox(
+            height: 200,
+            child: CommonLoader(),
+          );
+        }
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SystemThemeWrapper(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -194,12 +238,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 bottomPos: 20,
                 heightAdder: 90,
               ),
-              _goals(),
+              _goalsList(),
               const SizedBox(
                 height: 8,
               ),
             ],
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          tooltip: "Add a goal",
+          child: Icon(PhosphorIcons.plus),
+          onPressed: () {
+            pushPageAwait(newPage: CreateGoalScreen.routeName, context: context)
+                .then((_) {
+              setState(() {});
+            });
+          },
+          backgroundColor: Palette.primary,
         ),
       ),
     );
@@ -207,52 +262,56 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _GoalCard extends StatelessWidget {
-  final Goal goal;
+  final dynamic goal;
   const _GoalCard({Key key, @required this.goal}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6.0),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                offset: Offset(0.0, 2.0),
-                blurRadius: 20)
-          ]),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                goal.title,
-                style: TextStyle(
-                    fontSize: 22,
-                    color: Palette.primaryDark,
-                    letterSpacing: -1),
-              ),
-              const SizedBox(
-                height: 2,
-              ),
-              Text(
-                "Start date : ${goal.date}",
-                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-              ),
-            ],
-          ),
-          IconButton(
-            icon: Icon(
-              PhosphorIcons.dots_three_vertical,
+    return GestureDetector(
+      onTap: () => pushPage(
+          newPage: UpcomingChallengesScreen.routeName, context: context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6.0),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  offset: Offset(0.0, 2.0),
+                  blurRadius: 20)
+            ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  goal['title'],
+                  style: TextStyle(
+                      fontSize: 22,
+                      color: Palette.primaryDark,
+                      letterSpacing: -1),
+                ),
+                const SizedBox(
+                  height: 2,
+                ),
+                Text(
+                  "${StringHelpers.formatDate(goal['startDate'])} - ${StringHelpers.formatDate(goal['endDate'])}",
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                ),
+              ],
             ),
-            onPressed: () {},
-          )
-        ],
+            IconButton(
+              icon: Icon(
+                PhosphorIcons.dots_three_vertical,
+              ),
+              onPressed: () {},
+            )
+          ],
+        ),
       ),
     );
   }

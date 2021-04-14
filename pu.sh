@@ -1,1 +1,1 @@
-git add . && git commit -am "Updated code" &&  git push -u origin master && git push -u company master
+git add . && git commit -am "$1" &&  git push -u origin master && git push -u company master

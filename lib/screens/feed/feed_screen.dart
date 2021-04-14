@@ -18,7 +18,10 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<int> _likes = [];
 
   ScrollController _scrollController = ScrollController();
@@ -56,6 +59,7 @@ class _FeedScreenState extends State<FeedScreen>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,

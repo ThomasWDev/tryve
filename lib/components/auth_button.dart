@@ -6,6 +6,8 @@ class AuthButton extends StatelessWidget {
   final String label;
   final Color color;
   final double widthDivider;
+  final double height;
+  final TextStyle style;
 
   const AuthButton(
       {Key key,
@@ -13,6 +15,8 @@ class AuthButton extends StatelessWidget {
       this.icon,
       @required this.label,
       @required this.color,
+      this.style,
+      this.height = 44,
       this.widthDivider = 1})
       : super(key: key);
 
@@ -20,15 +24,16 @@ class AuthButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final Text text = Text(
       label,
-      style: TextStyle(
-          color: Colors.white, fontSize: 16, fontWeight: FontWeight.w300),
+      style: style ??
+          TextStyle(
+              color: Colors.white, fontSize: 16, fontWeight: FontWeight.w300),
     );
 
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       child: ConstrainedBox(
         constraints: BoxConstraints.tightFor(
-            width: MediaQuery.of(context).size.width, height: 44),
+            width: MediaQuery.of(context).size.width, height: height),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
               primary: color,

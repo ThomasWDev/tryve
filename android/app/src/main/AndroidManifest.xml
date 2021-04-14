@@ -9,6 +9,7 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="Tryve"
         android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true"
         usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"

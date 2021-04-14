@@ -2,8 +2,6 @@ import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:bezier_chart/bezier_chart.dart';
 
-const _GOALS = 6;
-
 const kNumOfItem = 12;
 
 class ChartMock {
@@ -28,30 +26,6 @@ class ChartMock {
     "B": 2,
     "C": 2,
   };
-}
-
-class GoalsMock {
-  static int count = _GOALS;
-  static List<Goal> goals = List.generate(_GOALS, (index) {
-    if (index.isEven) {
-      return Goal(
-        title: "Overflow the piggy bank",
-        date: "$index/5/2021",
-      );
-    } else {
-      return Goal(
-        title: "Invest in the bank of piggy",
-        date: "$index/5/2021",
-      );
-    }
-  });
-}
-
-class Goal {
-  final String title;
-  final String date;
-
-  Goal({this.title, this.date});
 }
 
 class SearchSectionMock {
@@ -83,4 +57,52 @@ class ChatMessage {
       @required this.message,
       @required this.date,
       @required this.isPremium});
+}
+
+class AuthenticationMehodMocks {
+  static List<String> images = [
+    "https://source.unsplash.com/xXofYCc3hqc/200x200/",
+    "https://source.unsplash.com/gcqXcSYNmhk/200x200/",
+    "https://source.unsplash.com/0UjcyAvHc-4/200x200/",
+    "https://source.unsplash.com/ObQC-0wf2JE/200x200/",
+    "https://source.unsplash.com/lj1cQ2gv4wE/200x200/",
+    "https://source.unsplash.com/650MB7-RURY/200x200/",
+  ];
+
+  static String bodyText = """
+  - 2021.8.24(Mon) - 2017.8.27(Thurs) Abs Photo Authentication
+  - Abs Recognition comment on the authentication shot has more 'APPROVE then OPPOSE will consider success
+
+  * You will not be able to participate in this challenge among successful participants who made abs in july.
+
+  * Those who successeded more than 2 times in the abs Challenge you will not be able to participate
+
+  * Pictures posted before te last week of August will noot be processed .
+
+  * The time of comment is 8/28(Friday) 9 o'clock will result announced 8/29(Sat) Day 12:30
+  """;
+
+  static String footerText = """
+  Authentication available day
+
+  Authentication frequency\t\t\tUntil 8:30 time
+
+  Authentication time available\t\t\t 24hrs
+
+  number of auth / day\t\t\t 1 time
+
+  Authentication interval\t\t\t No limits
+
+  Photobooks available\t\t\t Impossible
+  
+  Certified shot release\t\t\t released/public
+  """;
+}
+
+class UpComingChallengeMock {
+  static String headerText =
+      "Welcome to the newest challenge offered by Tryve .";
+  static String body =
+      "This challenge looks into improving the hydration levels in the atmosphere by having you drink more water . Drink water daily . Make sure to bring your Brita Filter and drink on !";
+  static String footerText = "This challenge will go on for 30 days";
 }

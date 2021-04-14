@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
+import 'package:tryve/services/api/parse/user_api/user_api.dart';
 
 class AuthenticationService {
   final FirebaseAuth _firebaseAuth;
@@ -63,6 +65,14 @@ class AuthenticationService {
 
   User getUser() {
     return _firebaseAuth.currentUser;
+  }
+
+  Future<ParseResponse> getParseUser() {
+    return UserAPI.getUserbyMail(this.getUser().email);
+  }
+
+  Future<String> getParseUserID() async {
+    return (await this.getParseUser()).result[0]['objectId'];
   }
 }
 

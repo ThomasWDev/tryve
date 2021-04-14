@@ -217,7 +217,7 @@ class _VerifyScreenSliderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => pushPageWidget(
+      onTap: () => pushWidget(
           newPage: VerifySubScreen(
             image: url,
           ),

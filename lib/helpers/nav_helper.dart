@@ -20,7 +20,7 @@ void pushPage(
   Navigator.of(context).pushNamed(newPage);
 }
 
-void pushPageWidget(
+void pushWidget(
     {@required Widget newPage,
     @required BuildContext context,
     bool pushBackPrevPage = false}) {
@@ -50,7 +50,22 @@ Future<dynamic> pushPageAwait(
   return Future.value(await Navigator.of(context).pushNamed(newPage));
 }
 
+Future<dynamic> pushWidgetAwait(
+    {@required Widget newPage,
+    @required BuildContext context,
+    bool pushBackPrevPage = false}) async {
+  if (pushBackPrevPage) {
+    Navigator.of(context).pop();
+  }
+  return Future.value(await Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => newPage)));
+}
+
 /// Replcae with a new page , uses Navigator.pushReplacement method
 void replacePage({@required String newPage, @required BuildContext context}) {
   Navigator.of(context).pushReplacementNamed(newPage);
+}
+
+void pop(BuildContext context) {
+  Navigator.of(context).pop();
 }

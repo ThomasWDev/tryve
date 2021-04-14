@@ -2,13 +2,12 @@
 
 ## How to run Tryve
 
-1 . Clone by typing `git clone https://github.com/ThomasWDev/tryve.git` on terminal / CMD
-2 . Type `cd tryve_flutter`/Users/thomaswoodfin/Documents/TRVE/tryve_flutter
+1 . Clone by typing `git clone https://pacifio@bitbucket.org/tbltechnerds/tryve_flutter.git` on terminal / CMD
+2 . Type `cd tryve_flutter`/Users/thomaswoodfin/Documents/TRVETBL/tryve_flutter
 
 ## Install flutter if you don't have flutter installed
 
 1 . Go to [this](https://flutter.dev/docs/get-started/install) Url .
-If updating, go to https://flutter.dev/docs/development/tools/sdk/upgrading
 
 2 . Click on the respective platform and download flutter-*.zip
 

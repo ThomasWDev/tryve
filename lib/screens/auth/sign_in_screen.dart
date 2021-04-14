@@ -62,7 +62,7 @@ class _SigninScreenState extends State<SigninScreen> {
                 _loggingIn = false;
               });
             })
-        .then((success) {
+        .then((success) async {
       if (success) {
         setState(() {
           _loggingIn = false;
@@ -78,8 +78,9 @@ class _SigninScreenState extends State<SigninScreen> {
       setState(() {
         _loggingIn = false;
       });
-    }).then((success) {
+    }).then((success) async {
       if (success) {
+        await context.read<AuthenticationService>().getParseUserID();
         setState(() {
           _loggingIn = false;
         });

@@ -11,9 +11,14 @@ class VerifyScreen extends StatefulWidget {
   _VerifyScreenState createState() => _VerifyScreenState();
 }
 
-class _VerifyScreenState extends State<VerifyScreen> {
+class _VerifyScreenState extends State<VerifyScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SystemThemeWrapper(
         child: Scaffold(
       body: SingleChildScrollView(

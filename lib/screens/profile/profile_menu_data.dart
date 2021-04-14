@@ -4,6 +4,10 @@ import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 class ProfileMenu {
   static List<ProfileMenuData> menus = [
     ProfileMenuData(
+        icon: PhosphorIcons.pencil,
+        title: "Customize profile",
+        desc: "Update your name , avatar"),
+    ProfileMenuData(
         icon: PhosphorIcons.bank,
         title: "Investing & Goals",
         desc: "Balance , List , Stats"),

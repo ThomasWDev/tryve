@@ -6,6 +6,8 @@ import 'package:tryve/components/logo.dart';
 import 'package:tryve/screens/auth/common/base_error.dart';
 import 'package:tryve/screens/auth/common/base_input.dart';
 import 'package:tryve/screens/auth/common/form_wrapper.dart';
+import 'package:tryve/services/api/models/user_model.dart';
+import 'package:tryve/services/api/parse/user_api/user_api.dart';
 import 'package:tryve/services/auth/auth_service.dart';
 import 'package:tryve/theme/palette.dart';
 import 'package:tryve/theme/theme.dart';
@@ -28,6 +30,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
 
   void _viewTerms() {}
 
@@ -42,7 +45,7 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  void _register() {
+  void _register() async {
     _formReset();
 
     context
@@ -68,8 +71,17 @@ class _SignupScreenState extends State<SignupScreen> {
             });
           },
         )
-        .then((success) {
+        .then((success) async {
       if (success) {
+        final user = context.read<AuthenticationService>().getUser();
+        await user.updateProfile(
+          displayName: _usernameController.text,
+        );
+        await UserAPI.createUser(UserModel(
+          email: user.email,
+          displayName: _usernameController.text,
+          social: false,
+        ));
         setState(() {
           _signingUp = false;
         });
@@ -77,15 +89,24 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  void _googleLogin() {
+  void _googleLogin() async {
     _formReset();
 
     context.read<AuthenticationService>().signInWithGoogle(onError: () {
       setState(() {
         _signingUp = false;
       });
-    }).then((success) {
+    }).then((success) async {
       if (success) {
+        final user = context.read<AuthenticationService>().getUser();
+        final exists = await UserAPI.accountExists(user.email);
+        if (!exists) {
+          await UserAPI.createUser(UserModel(
+              email: user.email,
+              displayName: user.displayName,
+              social: true,
+              socialImage: user.photoURL));
+        }
         setState(() {
           _signingUp = false;
         });
@@ -155,9 +176,10 @@ class _SignupScreenState extends State<SignupScreen> {
           BaseInput(
             label: "User Name *",
             icon: Icon(
-              PhosphorIcons.at,
+              PhosphorIcons.user,
               color: Palette.primary,
             ),
+            controller: _usernameController,
           ),
           BaseInput(
             label: "Email ID *",
