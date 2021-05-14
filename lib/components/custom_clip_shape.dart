@@ -3,6 +3,7 @@ import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/components/common_leading.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
 import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/helpers/platform_helper.dart';
 import 'package:tryve/screens/message/message_screen.dart';
 import 'package:tryve/services/api/mock.dart';
 import 'package:tryve/theme/palette.dart';
@@ -40,6 +41,44 @@ class CustomClipShape extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isDesktop())
+      return Container(
+        height: MediaQuery.of(context).size.height / 2,
+        child: Stack(
+          children: <Widget>[
+            SizedBox(
+              // TODO: change to 319/384 when the Tryve logo in the sidebar is properly framed.
+              width: MediaQuery.of(context).size.width * 359/384,
+              height: MediaQuery.of(context).size.height / 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Palette.primaryDark,
+                      Palette.mango,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+            child != null
+              ? fillHeight
+                ? Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: child
+                )
+                : Container(
+                  height: height / childDivider,
+                  width: MediaQuery.of(context).size.width,
+                  child: child
+                )
+              : const SizedBox.shrink()
+          ],
+        ),
+      );
+    
     return Container(
       height: height + heightAdder,
       child: Stack(

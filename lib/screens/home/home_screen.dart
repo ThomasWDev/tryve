@@ -9,6 +9,7 @@ import 'package:tryve/components/custom_clip_shape.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
 import 'package:tryve/components/system_theme_wrapper.dart';
 import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/helpers/platform_helper.dart';
 import 'package:tryve/helpers/string_helpers.dart';
 import 'package:tryve/screens/home/create_goals/create_goal_screen.dart';
 import 'package:tryve/screens/upcoming_challenges/upcoming_challenges_screen.dart';
@@ -222,10 +223,46 @@ class _HomeScreenState extends State<HomeScreen>
       },
     );
   }
-
+  
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    
+    if (isDesktop())
+      return SystemThemeWrapper(
+        child: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                CustomClipShape(
+                  key: _key,
+                  child: _chartBox(),
+                  bottomPos: 20,
+                  heightAdder: 90,
+                ),
+                Row(
+                  children: <Widget>[
+                    _goalsList(),
+                    _pieCharts(),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            tooltip: "Add a goal",
+            child: Icon(PhosphorIcons.plus),
+            onPressed: () {
+              pushPageAwait(newPage: CreateGoalScreen.routeName, context: context)
+                  .then((_) {
+                setState(() {});
+              });
+            },
+            backgroundColor: Palette.primary,
+          ),
+        ),
+      );
+    
     return SystemThemeWrapper(
       child: Scaffold(
         body: SingleChildScrollView(

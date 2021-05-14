@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tryve/helpers/platform_helper.dart';
 import 'package:tryve/screens/feed/feed_screen.dart';
 import 'package:tryve/screens/home/home_screen.dart';
 import 'package:tryve/screens/profile/profile_screen.dart';
@@ -54,6 +56,87 @@ class _RootScreenState extends State<RootScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (isDesktop()) {
+      int _selectedIndex = 0;
+    
+      return Scaffold(
+        body: Row(
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                // TODO: embed the logo in a square box 65/384 of screen width
+                SvgPicture.asset(
+                  'images/logo_big.svg',
+                  width: MediaQuery.of(context).size.width * 25/384,
+                ),
+                Expanded(
+                  child: NavigationRail(
+                    selectedIndex: _selectedIndex,
+                    onDestinationSelected: (int index) {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                    
+                      _controller.animateTo(index);
+                    },
+                    labelType: NavigationRailLabelType.selected,
+                    destinations: [
+                      NavigationRailDestination(
+                        icon: ImageIcon(
+                          AssetImage('images/sidebar/home.png'),
+                        ),
+                        selectedIcon: ImageIcon(
+                          AssetImage('images/sidebar/home_selected.png'),
+                        ),
+                        label: Text('Home'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(PhosphorIcons.magnifying_glass),
+                        // TODO: make a gradiented search icon
+                        selectedIcon: Icon(PhosphorIcons.magnifying_glass),
+                        label: Text('Feed'),
+                      ),
+                      NavigationRailDestination(
+                        icon: ImageIcon(
+                          AssetImage('images/sidebar/verify.png'),
+                        ),
+                        selectedIcon: ImageIcon(
+                          AssetImage('images/sidebar/verify_selected.png'),
+                        ),
+                        label: Text('Verify'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(PhosphorIcons.rss),
+                        // TODO: make a gradiented feed icon
+                        selectedIcon: Icon(PhosphorIcons.rss),
+                        label: Text('Feed'),
+                      ),
+                      NavigationRailDestination(
+                        icon: ImageIcon(
+                          AssetImage('images/sidebar/profile.png'),
+                        ),
+                        selectedIcon: ImageIcon(
+                          AssetImage('images/sidebar/profile_selected.png'),
+                        ),
+                        label: Text('Profile'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
+                children: _screens,
+                controller: _controller,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  
     return Scaffold(
       body: TabBarView(
         physics: NeverScrollableScrollPhysics(),
