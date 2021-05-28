@@ -1,14 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:tryve/components/auth_button.dart';
 import 'package:tryve/components/common_avatar.dart';
+import 'package:tryve/components/common_loading_overlay.dart';
 import 'package:tryve/components/custom_clip_shape.dart';
-import 'package:tryve/services/api/mock.dart';
+import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/helpers/string_helpers.dart';
+import 'package:tryve/helpers/toast_helper.dart';
 import 'package:tryve/theme/palette.dart';
+import 'package:flutter/services.dart';
 
-class UpcomingChallengesScreen extends StatelessWidget {
+class UpcomingChallengesScreen extends StatefulWidget {
   static String routeName = "/upcoming_challenges";
-  const UpcomingChallengesScreen({Key key}) : super(key: key);
+
+  final dynamic goal;
+
+  UpcomingChallengesScreen({
+    Key key,
+    @required this.goal,
+  }) : super(key: key);
+
+  @override
+  _UpcomingChallengesScreenState createState() =>
+      _UpcomingChallengesScreenState();
+}
+
+class _UpcomingChallengesScreenState extends State<UpcomingChallengesScreen> {
+  bool _loading = false;
+  final TextEditingController _controller = TextEditingController();
 
   Widget _coloredHeader() {
     return Container(
@@ -24,9 +44,10 @@ class UpcomingChallengesScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Drink water daily",
+          Text(widget.goal['title'],
               style: TextStyle(color: Colors.white, fontSize: 22)),
-          Text("Starts : 12/15/2021",
+          Text(
+              "Starts : ${StringHelpers.formatDate(widget.goal['startDate'] as DateTime)}",
               style: TextStyle(color: Colors.white, fontSize: 18)),
         ],
       ),
@@ -44,14 +65,14 @@ class UpcomingChallengesScreen extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            UpComingChallengeMock.headerText,
+            "Welcome to the newest challenge offered by Tryve .",
             style: style,
           ),
           const SizedBox(
             height: 12,
           ),
           Text(
-            UpComingChallengeMock.body,
+            widget.goal['description'],
             style: style,
             textAlign: TextAlign.center,
           ),
@@ -59,7 +80,7 @@ class UpcomingChallengesScreen extends StatelessWidget {
             height: 12,
           ),
           Text(
-            UpComingChallengeMock.footerText,
+            "This challenge will go on for ${StringHelpers.dateDiff(widget.goal['startDate'] as DateTime, widget.goal['endDate'] as DateTime)} days",
             style: style,
           ),
         ],
@@ -129,14 +150,49 @@ class UpcomingChallengesScreen extends StatelessWidget {
   }
 
   Widget _input() {
-    return _Input();
+    return _Input(
+      controller: _controller,
+    );
+  }
+
+  void _submit() async {
+    if (_controller.text.isNotEmpty) {
+      setState(() {
+        _loading = true;
+      });
+
+      final amount = num.tryParse(_controller.text);
+      final _goal = ParseObject("Goal")
+        ..objectId = widget.goal['objectId']
+        ..set("verified", true)
+        ..set(
+          "amountPaid",
+          amount ?? 0,
+        );
+
+      final response = await _goal.save();
+
+      setState(() {
+        _loading = false;
+      });
+
+      if (response.success) {
+        toast("Goal verified");
+      } else {
+        toast("Couldn't verify goal !");
+      }
+
+      pop(context);
+    } else {
+      toast("Please enter a valid amount");
+    }
   }
 
   Widget _btn() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 100),
       child: AuthButton(
-        onPressed: () {},
+        onPressed: _submit,
         label: "Submit",
         color: Palette.primary,
       ),
@@ -189,9 +245,12 @@ class UpcomingChallengesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [_header(context)],
+      body: CommonLoadingOverlay(
+        loading: _loading,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [_header(context)],
+          ),
         ),
       ),
     );
@@ -199,7 +258,8 @@ class UpcomingChallengesScreen extends StatelessWidget {
 }
 
 class _Input extends StatelessWidget {
-  const _Input({Key key}) : super(key: key);
+  final TextEditingController controller;
+  const _Input({Key key, @required this.controller}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -218,6 +278,9 @@ class _Input extends StatelessWidget {
           ),
           Expanded(
             child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: "Enter between \$10 - \$50 to join",

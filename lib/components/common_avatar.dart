@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/theme/palette.dart';
 
 class CommonAvatar extends StatelessWidget {
@@ -26,12 +27,23 @@ class CommonAvatar extends StatelessWidget {
                 offset: Offset(0.0, 8.0),
                 blurRadius: 40)
           ]),
-      child: CircleAvatar(
-        backgroundImage: NetworkImage(
-            url ?? "https://randomuser.me/api/portraits/men/32.jpg"),
-        backgroundColor: Palette.primary,
-        radius: radius,
-      ),
+      child: url != null
+          ? CircleAvatar(
+              backgroundImage: NetworkImage(url),
+              backgroundColor: Palette.primary,
+              radius: radius,
+            )
+          : CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: radius,
+              child: Center(
+                child: Icon(
+                  PhosphorIcons.user,
+                  color: Colors.black,
+                  size: 50,
+                ),
+              ),
+            ),
     );
   }
 }

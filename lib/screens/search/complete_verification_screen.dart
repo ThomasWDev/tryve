@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/components/auth_button.dart';
 import 'package:tryve/helpers/nav_helper.dart';
-import 'package:tryve/screens/verify/authentication_method_screen.dart';
+import 'package:tryve/screens/root/root_screen.dart';
 import 'package:tryve/theme/palette.dart';
 
 const double h = 220;
@@ -66,8 +66,8 @@ class CompleteVerificationScreen extends StatelessWidget {
         horizontal: 38,
       ),
       child: AuthButton(
-          onPressed: () => replacePage(
-              newPage: AuthenticationMethodScreen.routeName, context: context),
+          onPressed: () => pushPageWhileRemove(
+              newPage: RootScreen.routeName, context: context),
           label: "Complete",
           color: Palette.primary),
     );

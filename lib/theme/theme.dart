@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tryve/theme/palette.dart';
 
-final globalTheme = ThemeData(
-  primaryColor: Palette.primary,
-  scaffoldBackgroundColor: Palette.background,
-  visualDensity: VisualDensity.adaptivePlatformDensity,
-);
+ThemeData globalTheme(BuildContext context) => ThemeData(
+      primaryColor: Palette.primary,
+      scaffoldBackgroundColor: Palette.background,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+    );
 
 final TextStyle commonBoldStyle = TextStyle(
     fontWeight: FontWeight.bold,

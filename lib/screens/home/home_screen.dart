@@ -1,21 +1,19 @@
+import 'dart:convert';
+
 import 'package:bezier_chart/bezier_chart.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
-import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:pie_chart/pie_chart.dart';
-import 'package:tryve/components/common_loader.dart';
+import 'package:provider/provider.dart';
+import 'package:tryve/components/common_empty_view.dart';
+import 'package:tryve/components/common_goal_loader.dart';
 import 'package:tryve/components/custom_clip_shape.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
 import 'package:tryve/components/system_theme_wrapper.dart';
-import 'package:tryve/helpers/nav_helper.dart';
 import 'package:tryve/helpers/string_helpers.dart';
-import 'package:tryve/screens/home/create_goals/create_goal_screen.dart';
-import 'package:tryve/screens/upcoming_challenges/upcoming_challenges_screen.dart';
 import 'package:tryve/services/api/mock.dart';
 import 'package:tryve/services/api/parse/goal_api/goal_api.dart';
-import 'package:tryve/services/auth/auth_service.dart';
-import 'package:provider/provider.dart';
+import 'package:tryve/state/goals_state.dart';
 import 'package:tryve/theme/palette.dart';
 import 'package:tryve/theme/theme.dart';
 
@@ -29,16 +27,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
-  User _user;
-
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void initState() {
-    super.initState();
-    _user = context.read<AuthenticationService>().getUser();
-  }
 
   GlobalKey _key = GlobalKey();
 
@@ -191,33 +181,27 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _goalsList() {
-    return FutureBuilder(
-      future: GoalAPI.getGoals(_user),
-      builder: (context, AsyncSnapshot<ParseResponse> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.success) {
-            if (snapshot.data.result != null) {
-              return Column(
-                children: [
-                  _goalsHeader((snapshot.data.results).length),
-                  Column(
-                    children: (snapshot.data.result as List<dynamic>)
-                        .map((goal) => _GoalCard(goal: goal))
-                        .toList(),
-                  ),
-                ],
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          } else {
-            return const SizedBox.shrink();
-          }
+    return Consumer<GoalState>(
+      builder: (context, value, _) {
+        if (value.loading) {
+          return CommonGoalLoaderSection();
         } else {
-          return SizedBox(
-            height: 200,
-            child: CommonLoader(),
-          );
+          if (value.goals.isEmpty) {
+            return CommonEmptyView(
+              message: "You don't have any goals",
+            );
+          } else {
+            return Column(
+              children: [
+                _goalsHeader(value.goals.length),
+                Column(
+                  children: value.goals
+                      .map((goal) => _GoalCard(goal: goal.toString()))
+                      .toList(),
+                ),
+              ],
+            );
+          }
         }
       },
     );
@@ -245,32 +229,57 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          tooltip: "Add a goal",
-          child: Icon(PhosphorIcons.plus),
-          onPressed: () {
-            pushPageAwait(newPage: CreateGoalScreen.routeName, context: context)
-                .then((_) {
-              setState(() {});
-            });
-          },
-          backgroundColor: Palette.primary,
-        ),
       ),
     );
   }
 }
 
-class _GoalCard extends StatelessWidget {
-  final dynamic goal;
+class _GoalCard extends StatefulWidget {
+  final String goal;
   const _GoalCard({Key key, @required this.goal}) : super(key: key);
 
   @override
+  __GoalCardState createState() => __GoalCardState();
+}
+
+class __GoalCardState extends State<_GoalCard> {
+  dynamic goal;
+  bool loading = true;
+  bool loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchGoal();
+  }
+
+  void _fetchGoal() {
+    GoalAPI.getGoalById(widget.goal).then((response) {
+      if (response.success) {
+        setState(() {
+          goal = jsonDecode(response.result.toString());
+          loading = false;
+          loaded = true;
+        });
+      } else {
+        setState(() {
+          loading = false;
+          loaded = false;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => pushPage(
-          newPage: UpcomingChallengesScreen.routeName, context: context),
-      child: Container(
+    if (loading) {
+      return CommonGoalLoader();
+    } else {
+      if (!loaded) {
+        return const SizedBox.shrink();
+      }
+
+      return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -299,7 +308,7 @@ class _GoalCard extends StatelessWidget {
                   height: 2,
                 ),
                 Text(
-                  "${StringHelpers.formatDate(goal['startDate'])} - ${StringHelpers.formatDate(goal['endDate'])}",
+                  "${StringHelpers.formatDate(DateTime.parse(goal['startDate']['iso']))} - ${StringHelpers.formatDate(DateTime.parse(goal['endDate']['iso']))}",
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                 ),
               ],
@@ -312,7 +321,7 @@ class _GoalCard extends StatelessWidget {
             )
           ],
         ),
-      ),
-    );
+      );
+    }
   }
 }

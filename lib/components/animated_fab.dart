@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/helpers/nav_helper.dart';
 import 'package:tryve/screens/message/message_screen.dart';
-import 'package:tryve/services/api/mock.dart';
 import 'package:tryve/theme/palette.dart';
-
-import 'icon_btn_with_counter.dart';
 
 class AnimatedFAB extends StatelessWidget {
   final AnimationController controller;
@@ -31,10 +28,9 @@ class AnimatedFAB extends StatelessWidget {
             () => pushPage(newPage: MessageScreen.routeName, context: context),
         backgroundColor: backgroundColor ?? Colors.white,
         child: icon ??
-            IconWithCounter(
-              icon: PhosphorIcons.chat,
-              iconColor: Palette.primary,
-              numOfitem: kNumOfItem,
+            Icon(
+              PhosphorIcons.plus,
+              color: Palette.primary,
             ),
       ),
       builder: (BuildContext context, Widget child) {

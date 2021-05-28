@@ -98,11 +98,3 @@ class AuthenticationMehodMocks {
   Certified shot release\t\t\t released/public
   """;
 }
-
-class UpComingChallengeMock {
-  static String headerText =
-      "Welcome to the newest challenge offered by Tryve .";
-  static String body =
-      "This challenge looks into improving the hydration levels in the atmosphere by having you drink more water . Drink water daily . Make sure to bring your Brita Filter and drink on !";
-  static String footerText = "This challenge will go on for 30 days";
-}

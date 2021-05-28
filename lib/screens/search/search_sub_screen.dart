@@ -3,7 +3,7 @@ import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/components/common_leading.dart';
 import 'package:tryve/helpers/nav_helper.dart';
 
-import 'package:tryve/screens/verify/write_post_screen.dart';
+import 'package:tryve/screens/search/write_post_screen.dart';
 import 'package:tryve/theme/palette.dart';
 
 const double kPageHeight = 420;
@@ -11,16 +11,16 @@ const double kPageHeight = 420;
 final TextStyle centerTextBaseStyle =
     TextStyle(fontSize: 18, color: Colors.black.withOpacity(0.7));
 
-class VerifySubScreen extends StatefulWidget {
+class SubScreen extends StatefulWidget {
   static String routeName = "/verify_sub_screen";
   final String image;
-  const VerifySubScreen({Key key, @required this.image}) : super(key: key);
+  const SubScreen({Key key, @required this.image}) : super(key: key);
 
   @override
-  _VerifySubScreenState createState() => _VerifySubScreenState();
+  _SubScreenState createState() => _SubScreenState();
 }
 
-class _VerifySubScreenState extends State<VerifySubScreen> {
+class _SubScreenState extends State<SubScreen> {
   PageController _controller = PageController();
   int _index = 0;
 

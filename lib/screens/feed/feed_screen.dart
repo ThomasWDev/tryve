@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:tryve/components/animated_fab.dart';
+import 'package:tryve/components/common_loader.dart';
 import 'package:tryve/components/gradient_text.dart';
-import 'package:tryve/components/icon_btn_with_counter.dart';
+import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/screens/search/write_post_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:tryve/state/feed_state.dart';
 
 import 'package:tryve/theme/palette.dart';
 
@@ -21,8 +24,6 @@ class _FeedScreenState extends State<FeedScreen>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
-  List<int> _likes = [];
 
   ScrollController _scrollController = ScrollController();
   AnimationController _animationController;
@@ -74,90 +75,130 @@ class _FeedScreenState extends State<FeedScreen>
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 18.0, top: 36.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              GradientText(
-                                  colors: [Palette.primaryDark, Palette.mango],
-                                  text: "My feed",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 32,
-                                      letterSpacing: -1,
-                                      fontWeight: FontWeight.bold)),
-                              Text(
-                                "All of your personalised posts in all place",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w400),
-                              )
-                            ],
-                          ),
-                          IconBtnWithCounter(
-                            icon: PhosphorIcons.heart,
-                            press: () {},
-                            iconColor: Colors.pink,
-                            numOfitem: _likes.length,
-                            size: 36,
-                            top: 3,
+                          GradientText(
+                              colors: [Palette.primaryDark, Palette.mango],
+                              text: "Tryve feed",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 32,
+                                  letterSpacing: -1,
+                                  fontWeight: FontWeight.bold)),
+                          Text(
+                            "Keep track of all your goals",
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w400),
                           )
                         ],
                       ),
                     ),
                   ),
-                  SliverStaggeredGrid.countBuilder(
-                    crossAxisCount: 4,
-                    itemCount: 20,
-                    itemBuilder: (BuildContext context, int index) =>
-                        GestureDetector(
-                      onTap: () {
-                        if (_likes.contains(index)) {
-                          setState(() {
-                            _likes.remove(index);
-                          });
-                        } else {
-                          setState(() {
-                            _likes.add(index);
-                          });
-                        }
-                      },
-                      child: Stack(
-                        children: <Widget>[
-                          Positioned.fill(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: new Image.network(
-                                "https://source.unsplash.com/random/200x200?sig=$index",
-                                fit: BoxFit.cover,
+                  Consumer<FeedState>(
+                    builder: (context, state, child) {
+                      if (state.loading) {
+                        return SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height / 1.2,
+                            child: CommonLoader(),
+                          ),
+                        );
+                      }
+
+                      if (state.feeds.isEmpty) {
+                        return SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height / 1.2,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "You haven't posted anything",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 4,
+                                  ),
+                                  Text(
+                                    "Try pressing the add button in order to add posts",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          _likes.contains(index)
-                              ? Container(
+                        );
+                      }
+
+                      return SliverStaggeredGrid.countBuilder(
+                        crossAxisCount: 4,
+                        itemCount: state.feeds.length,
+                        itemBuilder: (BuildContext context, int index) => Stack(
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: new Image.network(
+                                  state.feeds[index]['images'][0]['url'],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Container(
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    color: Colors.black.withOpacity(0.6),
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      PhosphorIcons.thumbs_up,
-                                      color: Colors.green,
-                                      size: 40,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withOpacity(.8),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
                                     ),
                                   ),
-                                )
-                              : const SizedBox.shrink()
-                        ],
-                      ),
-                    ),
-                    staggeredTileBuilder: (int index) =>
-                        new StaggeredTile.count(2, index.isEven ? 2 : 1),
-                    mainAxisSpacing: 12.0,
-                    crossAxisSpacing: 12.0,
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              bottom: 20,
+                              child: Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0),
+                                  child: Text(
+                                    state.feeds[index]['title'],
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        staggeredTileBuilder: (int index) =>
+                            new StaggeredTile.count(2, index.isEven ? 2 : 1),
+                        mainAxisSpacing: 12.0,
+                        crossAxisSpacing: 12.0,
+                      );
+                    },
                   )
                 ],
               )),
@@ -165,6 +206,8 @@ class _FeedScreenState extends State<FeedScreen>
       ),
       floatingActionButton: AnimatedFAB(
         controller: _animationController,
+        onPressed: () =>
+            pushPage(newPage: WritePostScreen.routeName, context: context),
       ),
     );
   }

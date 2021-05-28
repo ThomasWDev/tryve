@@ -3,9 +3,12 @@ import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/components/auth_button.dart';
 import 'package:tryve/components/common_loading_overlay.dart';
 import 'package:tryve/components/logo.dart';
+import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/helpers/toast_helper.dart';
 import 'package:tryve/screens/auth/common/base_error.dart';
 import 'package:tryve/screens/auth/common/base_input.dart';
 import 'package:tryve/screens/auth/common/form_wrapper.dart';
+import 'package:tryve/screens/auth/reset_pass_screen.dart';
 import 'package:tryve/services/auth/auth_service.dart';
 import 'package:tryve/theme/palette.dart';
 import 'package:tryve/theme/theme.dart';
@@ -27,7 +30,13 @@ class _SigninScreenState extends State<SigninScreen> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  void _toForgotPass() {}
+  void _toForgotPass() {
+    pushWidget(
+        newPage: ResetPasswordScreen(
+          email: _emailController.text,
+        ),
+        context: context);
+  }
 
   void _formReset() {
     setState(() {
@@ -74,7 +83,36 @@ class _SigninScreenState extends State<SigninScreen> {
   void _googleLogin() {
     _formReset();
 
-    context.read<AuthenticationService>().signInWithGoogle(onError: () {
+    context.read<AuthenticationService>().signInWithGoogle(onError: (e) {
+      if (e != null) {
+        if (e.code == "account-exists-with-different-credential") {
+          toast("Account with this email exists");
+        }
+      }
+
+      setState(() {
+        _loggingIn = false;
+      });
+    }).then((success) async {
+      if (success) {
+        await context.read<AuthenticationService>().getParseUserID();
+        setState(() {
+          _loggingIn = false;
+        });
+      }
+    });
+  }
+
+  void _facebookLogin() {
+    _formReset();
+
+    context.read<AuthenticationService>().signInWithFacebook(onError: (e) {
+      if (e != null) {
+        if (e.code == "account-exists-with-different-credential") {
+          toast("Account with this email exists");
+        }
+      }
+
       setState(() {
         _loggingIn = false;
       });
@@ -132,19 +170,20 @@ class _SigninScreenState extends State<SigninScreen> {
                   error: "Wrong password",
                 )
               : const SizedBox.shrink(),
-          const SizedBox(height: 8),
           Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                  onTap: _toForgotPass,
-                  child: Text(
-                    "Forgot your password",
-                    style: commonBoldStyle.copyWith(
-                        color: Colors.grey,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w400),
-                  ))),
-          const SizedBox(height: 30),
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: _toForgotPass,
+              child: Text(
+                "Forgot your password",
+                style: commonBoldStyle.copyWith(
+                    color: Colors.grey,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w400),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           AuthButton(
               onPressed: _emailLogin, label: "Login", color: Palette.primary),
           Text(
@@ -156,7 +195,7 @@ class _SigninScreenState extends State<SigninScreen> {
           ),
           const SizedBox(height: 8),
           AuthButton(
-              onPressed: () {},
+              onPressed: _facebookLogin,
               label: "Facebook",
               color: Palette.fbBlue,
               icon: PhosphorIcons.facebook_logo),

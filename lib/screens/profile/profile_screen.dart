@@ -115,13 +115,15 @@ class _ProfileInfo extends StatelessWidget {
   const _ProfileInfo({Key key, @required this.user}) : super(key: key);
 
   Widget _image(ParseResponse response) {
-    return GestureDetector(
-        onTap: () {},
-        child: CommonAvatar(
-          url: UserAPI.social(user)
+    return CommonAvatar(
+      url: response.result[0]['image'] != null
+          ? response.result[0]['image']['url']
+          : UserAPI.social(user)
               ? response.result[0]['socialImage']
-              : response.result[0]['image']['url'],
-        ));
+              : response.result[0]['image'] != null
+                  ? response.result[0]['image']['url']
+                  : null,
+    );
   }
 
   Widget _name(ParseResponse response) {
@@ -140,7 +142,9 @@ class _ProfileInfo extends StatelessWidget {
   Widget _desc(ParseResponse response) {
     return Text(
       response.result[0]["description"] != null
-          ? response.result[0]["description"]
+          ? (response.result[0]["description"] as String).isEmpty
+              ? "Your description"
+              : response.result[0]["description"]
           : "Your description",
       style: TextStyle(
           fontSize: 18,

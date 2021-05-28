@@ -40,6 +40,17 @@ void pushPageWhileRemove(
   Navigator.of(context).pushNamedAndRemoveUntil(newPage, (route) => false);
 }
 
+void pushWidgetWhileRemove(
+    {@required Widget newPage,
+    @required BuildContext context,
+    bool pushBackPrevPage = false}) {
+  if (pushBackPrevPage) {
+    Navigator.of(context).pop();
+  }
+  Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => newPage), (route) => false);
+}
+
 Future<dynamic> pushPageAwait(
     {@required String newPage,
     @required BuildContext context,
@@ -64,6 +75,11 @@ Future<dynamic> pushWidgetAwait(
 /// Replcae with a new page , uses Navigator.pushReplacement method
 void replacePage({@required String newPage, @required BuildContext context}) {
   Navigator.of(context).pushReplacementNamed(newPage);
+}
+
+void replaceWidget({@required Widget newPage, @required BuildContext context}) {
+  Navigator.of(context)
+      .pushReplacement(MaterialPageRoute(builder: (context) => newPage));
 }
 
 void pop(BuildContext context) {

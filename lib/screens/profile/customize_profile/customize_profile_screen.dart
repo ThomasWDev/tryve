@@ -68,8 +68,6 @@ class _CustomizeProfileScreenState extends State<CustomizeProfileScreen> {
       }
 
       pop(context);
-    } else {
-      print("useless call");
     }
   }
 
@@ -89,16 +87,18 @@ class _CustomizeProfileScreenState extends State<CustomizeProfileScreen> {
   }
 
   void _imagePreview() {
-    showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              elevation: 0.0,
-              backgroundColor: Colors.transparent,
-              contentPadding: EdgeInsets.zero,
-              titlePadding: EdgeInsets.zero,
-              actionsPadding: EdgeInsets.zero,
-              content: Image.file(_image),
-            ));
+    if (_image != null) {
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                elevation: 0.0,
+                backgroundColor: Colors.transparent,
+                contentPadding: EdgeInsets.zero,
+                titlePadding: EdgeInsets.zero,
+                actionsPadding: EdgeInsets.zero,
+                content: Image.file(_image),
+              ));
+    }
   }
 
   Widget _body() {

@@ -3,7 +3,7 @@ import 'package:tryve/components/auth_button.dart';
 import 'package:tryve/components/custom_clip_shape.dart';
 import 'package:tryve/components/system_theme_wrapper.dart';
 import 'package:tryve/helpers/nav_helper.dart';
-import 'package:tryve/screens/verify/congratulate_screen.dart';
+import 'package:tryve/screens/search/congratulate_screen.dart';
 import 'package:tryve/services/api/mock.dart';
 import 'package:tryve/theme/palette.dart';
 
