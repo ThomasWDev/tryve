@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
+import 'package:tryve/components/common_leading.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
+import 'package:tryve/helpers/nav_helper.dart';
+import 'package:tryve/screens/message/message_screen.dart';
+import 'package:tryve/services/api/mock.dart';
 import 'package:tryve/theme/palette.dart';
 
 class CustomClipShape extends StatelessWidget {
@@ -15,12 +19,19 @@ class CustomClipShape extends StatelessWidget {
   final double childDivider;
   final double appBarDivider;
 
+  final Widget leading;
+  final bool showLeading;
+  final bool fillHeight;
+
   const CustomClipShape(
       {Key key,
       this.height = 400.0,
       this.child,
       this.header,
       this.bottom,
+      this.leading,
+      this.fillHeight = false,
+      this.showLeading = false,
       this.bottomPos = 20,
       this.heightAdder = 0,
       this.childDivider = 1.8,
@@ -63,7 +74,12 @@ class CustomClipShape extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Spacer(),
+                              showLeading
+                                  ? leading ?? CommonLeading()
+                                  : const SizedBox.shrink(),
+                              Spacer(
+                                flex: showLeading ? 1 : 1,
+                              ),
                               SizedBox(
                                 width: MediaQuery.of(context).size.width / 10,
                               ),
@@ -76,20 +92,30 @@ class CustomClipShape extends StatelessWidget {
                                     letterSpacing: 6,
                                     fontWeight: FontWeight.w600),
                               ),
-                              Spacer(),
+                              Spacer(
+                                flex: showLeading ? 2 : 1,
+                              ),
                               IconBtnWithCounter(
                                 icon: PhosphorIcons.chat,
-                                press: () {},
-                                numOfitem: 6,
+                                press: () {
+                                  pushPage(
+                                      newPage: MessageScreen.routeName,
+                                      context: context);
+                                },
+                                numOfitem: kNumOfItem,
                               )
                             ],
                           ),
                         ),
                   child != null
-                      ? Container(
-                          height: height / childDivider,
-                          width: MediaQuery.of(context).size.width,
-                          child: child)
+                      ? fillHeight
+                          ? Container(
+                              width: MediaQuery.of(context).size.width,
+                              child: child)
+                          : Container(
+                              height: height / childDivider,
+                              width: MediaQuery.of(context).size.width,
+                              child: child)
                       : const SizedBox.shrink()
                 ],
               )),
@@ -130,4 +156,27 @@ class ClipPathClass extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+class CustomClipShapeRaw extends StatelessWidget {
+  final double height;
+  const CustomClipShapeRaw({Key key, @required this.height}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: ClipPathClass(),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: height,
+        child: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+            Palette.primaryDark,
+            Palette.mango,
+          ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+        ),
+      ),
+    );
+  }
 }

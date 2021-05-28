@@ -2,18 +2,33 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:tryve/routes/routes.dart';
 import 'package:tryve/screens/loading/loading_screen.dart';
 import 'package:tryve/services/auth/auth_service.dart';
 import 'package:tryve/services/db/init_db.dart';
+import 'package:tryve/state/feed_state.dart';
+import 'package:tryve/state/goals_state.dart';
 import 'package:tryve/theme/palette.dart';
 import 'package:tryve/theme/theme.dart';
+
+import 'constants/constants.dart';
+
+Future<void> _initBack4App() async {
+  await Parse().initialize(
+    kApplicationID,
+    kParseServerURL,
+    clientKey: kClientID,
+    autoSendSessionId: true,
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await _initBack4App();
   initHive(() {
     SystemChrome.setPreferredOrientations(
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
@@ -23,6 +38,8 @@ void main() async {
           Provider<AuthenticationService>(
             create: (context) => AuthenticationService(FirebaseAuth.instance),
           ),
+          ChangeNotifierProvider(create: (_) => FeedState()),
+          ChangeNotifierProvider(create: (_) => GoalState()),
           StreamProvider(
               create: (context) =>
                   context.read<AuthenticationService>().authStateChanges)
@@ -38,7 +55,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tryve',
-      theme: globalTheme,
+      theme: globalTheme(context),
       routes: routes,
       initialRoute: LoadingScreen.routeName,
       debugShowCheckedModeBanner: false,

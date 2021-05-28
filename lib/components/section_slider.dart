@@ -34,7 +34,7 @@ class SectionSlider extends StatelessWidget {
                 name,
                 style: style ?? titleStyle,
               ),
-              FlatButton(
+              TextButton(
                 child: Text(
                   "See all",
                   style: buttonStyle ?? buttonStyleBase,

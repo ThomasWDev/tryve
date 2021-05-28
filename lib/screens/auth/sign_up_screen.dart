@@ -3,6 +3,7 @@ import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:tryve/components/auth_button.dart';
 import 'package:tryve/components/common_loading_overlay.dart';
 import 'package:tryve/components/logo.dart';
+import 'package:tryve/helpers/toast_helper.dart';
 import 'package:tryve/screens/auth/common/base_error.dart';
 import 'package:tryve/screens/auth/common/base_input.dart';
 import 'package:tryve/screens/auth/common/form_wrapper.dart';
@@ -28,6 +29,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
 
   void _viewTerms() {}
 
@@ -42,13 +44,12 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  void _register() {
+  void _register() async {
     _formReset();
 
-    context
-        .read<AuthenticationService>()
-        .signUp(
+    context.read<AuthenticationService>().signUp(
           email: _emailController.text,
+          name: _usernameController.text,
           password: _passwordController.text,
           onError: (e) {
             if (AuthenticationErrors.registerEmailError(e)) {
@@ -67,29 +68,38 @@ class _SignupScreenState extends State<SignupScreen> {
               _signingUp = false;
             });
           },
-        )
-        .then((success) {
-      if (success) {
-        setState(() {
-          _signingUp = false;
-        });
-      }
-    });
+        );
   }
 
-  void _googleLogin() {
+  void _googleLogin() async {
     _formReset();
 
-    context.read<AuthenticationService>().signInWithGoogle(onError: () {
+    context.read<AuthenticationService>().signInWithGoogle(onError: (e) {
+      if (e != null) {
+        if (e.code == "account-exists-with-different-credential") {
+          toast("Account with this email exists");
+        }
+      }
+
       setState(() {
         _signingUp = false;
       });
-    }).then((success) {
-      if (success) {
-        setState(() {
-          _signingUp = false;
-        });
+    });
+  }
+
+  void _facebookLogin() async {
+    _formReset();
+
+    context.read<AuthenticationService>().signInWithFacebook(onError: (e) {
+      if (e != null) {
+        if (e.code == "account-exists-with-different-credential") {
+          toast("Account with this email exists");
+        }
       }
+
+      setState(() {
+        _signingUp = false;
+      });
     });
   }
 
@@ -155,9 +165,10 @@ class _SignupScreenState extends State<SignupScreen> {
           BaseInput(
             label: "User Name *",
             icon: Icon(
-              PhosphorIcons.at,
+              PhosphorIcons.user,
               color: Palette.primary,
             ),
+            controller: _usernameController,
           ),
           BaseInput(
             label: "Email ID *",
@@ -198,7 +209,7 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
           const SizedBox(height: 8),
           AuthButton(
-            onPressed: () {},
+            onPressed: _facebookLogin,
             label: "Facebook",
             color: Palette.fbBlue,
             icon: PhosphorIcons.facebook_logo,
@@ -215,7 +226,7 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Widget _signUpText() {
-    return FlatButton(
+    return TextButton(
       onPressed: _toSignIn,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

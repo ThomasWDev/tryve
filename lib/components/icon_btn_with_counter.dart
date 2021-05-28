@@ -26,7 +26,7 @@ class IconBtnWithCounter extends StatelessWidget {
       borderRadius: BorderRadius.circular(100),
       onTap: press,
       child: Stack(
-        overflow: Overflow.visible,
+        clipBehavior: Clip.none,
         children: [
           Container(
             padding: EdgeInsets.all(12),
@@ -82,7 +82,7 @@ class IconWithCounter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      overflow: Overflow.visible,
+      clipBehavior: Clip.none,
       children: [
         Container(
           padding: EdgeInsets.all(12),

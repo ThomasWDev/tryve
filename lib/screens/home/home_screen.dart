@@ -1,11 +1,19 @@
+import 'dart:convert';
+
 import 'package:bezier_chart/bezier_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phosphor_icons/flutter_phosphor_icons.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:provider/provider.dart';
+import 'package:tryve/components/common_empty_view.dart';
+import 'package:tryve/components/common_goal_loader.dart';
 import 'package:tryve/components/custom_clip_shape.dart';
 import 'package:tryve/components/icon_btn_with_counter.dart';
 import 'package:tryve/components/system_theme_wrapper.dart';
+import 'package:tryve/helpers/string_helpers.dart';
 import 'package:tryve/services/api/mock.dart';
+import 'package:tryve/services/api/parse/goal_api/goal_api.dart';
+import 'package:tryve/state/goals_state.dart';
 import 'package:tryve/theme/palette.dart';
 import 'package:tryve/theme/theme.dart';
 
@@ -17,7 +25,11 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   GlobalKey _key = GlobalKey();
 
   List<Color> _pieColor(int order) {
@@ -150,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _goalsHeader() {
+  Widget _goalsHeader(int count) {
     return ListTile(
       title: Text(
         "Your Goal List :",
@@ -162,26 +174,42 @@ class _HomeScreenState extends State<HomeScreen> {
       trailing: IconBtnWithCounter(
         icon: PhosphorIcons.list,
         press: () {},
-        numOfitem: GoalsMock.count,
+        numOfitem: count,
         iconColor: Colors.grey,
       ),
     );
   }
 
   Widget _goalsList() {
-    return Column(
-      children: GoalsMock.goals.map((goal) => _GoalCard(goal: goal)).toList(),
-    );
-  }
-
-  Widget _goals() {
-    return Column(
-      children: <Widget>[_goalsHeader(), _goalsList()],
+    return Consumer<GoalState>(
+      builder: (context, value, _) {
+        if (value.loading) {
+          return CommonGoalLoaderSection();
+        } else {
+          if (value.goals.isEmpty) {
+            return CommonEmptyView(
+              message: "You don't have any goals",
+            );
+          } else {
+            return Column(
+              children: [
+                _goalsHeader(value.goals.length),
+                Column(
+                  children: value.goals
+                      .map((goal) => _GoalCard(goal: goal.toString()))
+                      .toList(),
+                ),
+              ],
+            );
+          }
+        }
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SystemThemeWrapper(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -194,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 bottomPos: 20,
                 heightAdder: 90,
               ),
-              _goals(),
+              _goalsList(),
               const SizedBox(
                 height: 8,
               ),
@@ -206,54 +234,94 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _GoalCard extends StatelessWidget {
-  final Goal goal;
+class _GoalCard extends StatefulWidget {
+  final String goal;
   const _GoalCard({Key key, @required this.goal}) : super(key: key);
 
   @override
+  __GoalCardState createState() => __GoalCardState();
+}
+
+class __GoalCardState extends State<_GoalCard> {
+  dynamic goal;
+  bool loading = true;
+  bool loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchGoal();
+  }
+
+  void _fetchGoal() {
+    GoalAPI.getGoalById(widget.goal).then((response) {
+      if (response.success) {
+        setState(() {
+          goal = jsonDecode(response.result.toString());
+          loading = false;
+          loaded = true;
+        });
+      } else {
+        setState(() {
+          loading = false;
+          loaded = false;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6.0),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                offset: Offset(0.0, 2.0),
-                blurRadius: 20)
-          ]),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                goal.title,
-                style: TextStyle(
-                    fontSize: 22,
-                    color: Palette.primaryDark,
-                    letterSpacing: -1),
-              ),
-              const SizedBox(
-                height: 2,
-              ),
-              Text(
-                "Start date : ${goal.date}",
-                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-              ),
-            ],
-          ),
-          IconButton(
-            icon: Icon(
-              PhosphorIcons.dots_three_vertical,
+    if (loading) {
+      return CommonGoalLoader();
+    } else {
+      if (!loaded) {
+        return const SizedBox.shrink();
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6.0),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  offset: Offset(0.0, 2.0),
+                  blurRadius: 20)
+            ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  goal['title'],
+                  style: TextStyle(
+                      fontSize: 22,
+                      color: Palette.primaryDark,
+                      letterSpacing: -1),
+                ),
+                const SizedBox(
+                  height: 2,
+                ),
+                Text(
+                  "${StringHelpers.formatDate(DateTime.parse(goal['startDate']['iso']))} - ${StringHelpers.formatDate(DateTime.parse(goal['endDate']['iso']))}",
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                ),
+              ],
             ),
-            onPressed: () {},
-          )
-        ],
-      ),
-    );
+            IconButton(
+              icon: Icon(
+                PhosphorIcons.dots_three_vertical,
+              ),
+              onPressed: () {},
+            )
+          ],
+        ),
+      );
+    }
   }
 }
